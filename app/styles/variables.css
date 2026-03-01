@@ -1,0 +1,17 @@
+:root {
+  /* Brand colors - Глибокий синій та енергійний золотий */
+  --color-primary: #1e40af;       /* Насичений синій */
+  --color-primary-dark: #1e3a8a;  /* Темно-синій для градієнтів */
+  --color-accent: #facc15;        /* Яскравий золотий (ZTU Gold) */
+
+  /* Neutral - Світлий фон та контрастний текст */
+  --color-bg: #f1f5f9;            /* Світло-сірий фон (slate-100) */
+  --color-surface: #ffffff;
+  --color-text: #0f172a;          /* Глибокий вугільний */
+  --color-text-muted: #64748b;    /* Сірий для другорядного тексту */
+
+  /* Radius & Shadow */
+  --radius-xl: 16px;
+  --shadow-soft: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --shadow-active: 0 10px 20px -5px rgba(30, 64, 175, 0.4); /* Синя тінь для активного елемента */
+}
