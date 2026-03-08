@@ -1,67 +1,30 @@
-import { Post } from '@/types/post';
-import {
-  Card,
-  CardContent,
-  Typography,
-  Button,
-  Chip,
-  CardActions
-} from '@mui/material';
+// app/ui/articles/favorite-article.tsx
+import Link from 'next/link';
 
-async function getFavoritePost(id: number): Promise<Post> {
-  await new Promise((resolve) =>
-    setTimeout(resolve, Math.random() * 3000)
-  );
-
-  const response = await fetch(
-    `https://jsonplaceholder.typicode.com/posts/${id}`
-  );
-
-  return response.json();
-}
-
-export async function FavoriteArticle({ id }: { id: number }) {
-  const post = await getFavoritePost(id);
-
+export function FavoriteArticle({ article }: { article: any }) {
   return (
-    <Card
-      sx={{
-        borderRadius: 4,
-        transition: 'all 0.3s ease',
-        boxShadow: '0 10px 30px rgba(0,0,0,0.05)',
-        '&:hover': {
-          transform: 'translateY(-6px)',
-          boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
-        },
-      }}
-    >
-      <CardContent>
-        <Chip
-          label={`Post #${post.id}`}
-          color="secondary"
-          size="small"
-          sx={{ mb: 2 }}
-        />
+    <article className="group relative flex flex-col rounded-[20px] bg-white p-7 shadow-md border border-slate-100 transition-all hover:shadow-xl">
+      <div className="absolute top-4 right-4 text-[#facc15] text-xl">★</div>
 
-        <Typography
-          variant="h6"
-          fontWeight="bold"
-          gutterBottom
-          sx={{ textTransform: 'capitalize' }}
+      <h2 className="mb-4 text-xl font-bold text-[#0f172a] group-hover:text-[#1e40af] transition-colors">
+        {article.title}
+      </h2>
+
+      <p className="mb-8 text-slate-500 line-clamp-3 text-sm italic">
+        {article.body}
+      </p>
+
+      <div className="mt-auto flex justify-between items-center">
+        <span className="text-xs font-bold text-slate-400">
+          Автор: {article.author?.name || 'Невідомий'}
+        </span>
+        <Link
+          href={`/articles/${article.id}`}
+          className="text-sm font-black text-[#1e40af] hover:underline"
         >
-          {post.title}
-        </Typography>
-
-        <Typography variant="body2" color="text.secondary">
-          {post.body}
-        </Typography>
-      </CardContent>
-
-      <CardActions sx={{ px: 2, pb: 2 }}>
-        <Button variant="contained" color="primary" fullWidth>
-          Переглянути
-        </Button>
-      </CardActions>
-    </Card>
+          Читати →
+        </Link>
+      </div>
+    </article>
   );
 }

@@ -42,3 +42,68 @@
 Статичний запуск генерує готові HTML-файли під час білду, що дозволяє розміщувати сайт на будь-якому static-хостингу без використання сервера. Такий підхід забезпечує кращу продуктивність і простіший деплой, однак потребує попередньої генерації всіх динамічних маршрутів.
 
 У результаті виконання лабораторної роботи було закріплено розуміння принципів статичної та динамічної генерації сторінок, а також особливостей їх застосування в сучасних веб-застосунках.
+
+## Lab 2
+
+У ході виконання лабораторної роботи було досліджено механізм захисту даних за допомогою файлу .env та префікса NEXT_PUBLIC_.
+
+Ключові результати експерименту:
+* Публічні змінні (NEXT_PUBLIC_):
+
+  * Змінна NEXT_PUBLIC_SITE_NAME доступна як на сервері, так і в браузері користувача.
+
+  * Це дозволяє безпечно виводити назву сайту або публічні ключі в клієнтських компонентах ("use client").
+
+* Приватні змінні (Серверні):
+
+  * Змінна SERVER_SECRET доступна виключно на стороні сервера (у консолі терміналу).
+
+  * При спробі вивести її в браузері (консоль розробника), Next.js повертає undefined.
+
+  * Це критично важливо для захисту таких даних, як DATABASE_URL (Neon), щоб запобігти витоку паролів до бази даних у клієнтський код.
+
+![variables.png](screenshots/variables.png)
+
+![variables_in_network.png](screenshots/variables_in_network.png)
+
+****
+## Створення та налаштування Prod бази даних
+Для розгортання основної (Production) бази даних було обрано хмарне рішення Vercel Postgres (або сумісний PostgreSQL інтерфейс). Як основний інструмент для взаємодії з базою даних використано Prisma ORM. Це дозволяє працювати з даними через типізовані об'єкти, уникаючи написання сирого SQL там, де це доцільно.
+
+Було реалізовано механізм автоматичного заповнення бази даних за допомогою seed файлу. Це дозволяє швидко розгорнути структуру таблиць та наповнити їх початковими даними для тестування функціоналу.
+
+![prod.png](screenshots/prod.png)
+
+## Створення Dev бази даних та керування конфігурацією
+
+В якості бази даних для розробки (Development) було обрано сервіс Neon.tech. Це дозволяє ізолювати експериментальні дані від основної бази. Підключення до Neon налаштовано з використанням пулінгу з'єднань (pooler), що є оптимальним для Serverless середовищ
+
+Головною особливістю реалізації є використання файлів .env та .env.local для автоматичного перемикання між базами:
+
+* У файлі .env зберігаються глобальні налаштування та посилання на Prod базу.
+
+* У файлі .env.local (який не потрапляє в репозиторій) прописано DATABASE_URL для Dev бази у Neon.
+
+Принцип роботи:
+
+Next.js та Prisma автоматично пріоритезують значення з .env.local під час локальної розробки. Таким чином, запускаючи npx prisma db seed локально, ми заповнюємо Dev базу (скріншот dev.png), а при деплої — Prod базу.
+![dev.png](screenshots/dev.png)
+
+*****
+
+## API
+![api_article_1_network.png](screenshots/api_article_1_network.png)
+
+![api_article_patch_5.png](screenshots/api_article_patch_5.png)
+![api_articles_network.png](screenshots/api_articles_network.png)
+![api_create_article.png](screenshots/api_create_article.png)
+
+![api_from_frontend(test).png](screenshots/api_from_frontend%28test%29.png)
+
+## Клієнтські сторінки
+![process_of_creation.png](screenshots/process_of_creation.png)
+![created_article.png](screenshots/created_article.png)
+![process_of_editing.png](screenshots/process_of_editing.png)
+![edited_article.png](screenshots/edited_article.png)
+![process_of_deleting.png](screenshots/process_of_deleting.png)
+![deleted_article.png](screenshots/deleted_article.png)

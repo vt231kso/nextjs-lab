@@ -1,18 +1,26 @@
-import { Post } from '@/types/post';
-import Link from 'next/link'; // Додав для навігації
+"use client"; // Робимо компонент клієнтським для SWR
 
-async function getPosts(): Promise<Post[]> {
-  const response = await fetch('https://jsonplaceholder.typicode.com/posts');
+import useSWR from 'swr';
+import Link from 'next/link';
 
-  if (!response.ok) {
-    throw new Error('Не вдалося завантажити пости');
-  }
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-  return response.json();
-}
+export default function ArticlesPage() {
+  const { data: posts, error, isLoading } = useSWR('/api/articles', fetcher);
 
-export default async function ArticlesPage() {
-  const posts = await getPosts();
+
+  if (isLoading) return (
+    <div className="flex h-screen items-center justify-center text-[#1e40af] font-bold">
+      Завантаження публікацій...
+    </div>
+  );
+
+  // Обробка помилки
+  if (error) return (
+    <div className="flex h-screen items-center justify-center text-red-500">
+      Помилка завантаження: {error.message}
+    </div>
+  );
 
   return (
     <div className="container mx-auto px-4 py-12 max-w-7xl">
@@ -24,12 +32,11 @@ export default async function ArticlesPage() {
       </h1>
 
       <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-        {posts.slice(0, 12).map((post) => (
+        {posts && posts.map((post: any) => (
           <article
             key={post.id}
             className="group relative flex flex-col rounded-[20px] bg-white p-7 shadow-[0_10px_30px_rgba(0,0,0,0.05)] transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(30,64,175,0.1)] border border-slate-100"
           >
-
             <span className="absolute -top-3 -right-3 flex h-10 w-10 items-center justify-center rounded-full bg-[#facc15] text-sm font-bold text-[#1e40af] shadow-md">
               #{post.id}
             </span>
@@ -41,6 +48,13 @@ export default async function ArticlesPage() {
             <p className="mb-8 text-slate-500 line-clamp-3 leading-relaxed">
               {post.body}
             </p>
+
+            {/* Додаємо інформацію про автора, якщо вона є у базі */}
+            {post.author && (
+              <div className="mb-4 text-xs font-semibold text-slate-400">
+                Автор: {post.author.name}
+              </div>
+            )}
 
             <Link
               href={`/articles/${post.id}`}
