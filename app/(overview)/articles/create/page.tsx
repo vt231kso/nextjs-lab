@@ -3,8 +3,10 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import {useSession} from "next-auth/react";
 
 export default function CreateArticlePage() {
+  const { data: session } = useSession();
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
   const [loading, setLoading] = useState(false);
@@ -17,18 +19,20 @@ export default function CreateArticlePage() {
     const response = await fetch('/api/articles', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title, body, isFavorite: false, authorId: 1 }),
+      // Передаємо тільки заголовок та зміст
+      body: JSON.stringify({ title, body }),
     });
 
     if (response.ok) {
       router.push('/articles');
       router.refresh();
     } else {
-      alert('Помилка при створенні');
+      // Можна вивести більш детальну помилку
+      const errorData = await response.json();
+      alert(errorData.error || 'Помилка при створенні');
     }
     setLoading(false);
   };
-
   return (
     <div className="min-h-screen bg-slate-50 py-12 px-4">
       <div className="max-w-2xl mx-auto">
@@ -100,8 +104,12 @@ export default function CreateArticlePage() {
         </div>
 
         {/* Підказка знизу */}
+        {/* Підказка знизу */}
         <p className="mt-8 text-center text-slate-400 text-sm italic">
-          Ваша стаття буде автоматично приписана до автора <span className="text-[#1e40af] font-bold">Софія Кашпуренко</span>
+          Ваша стаття буде автоматично приписана до автора:{" "}
+          <span className="text-[#1e40af] font-bold">
+    {session?.user?.name || "Завантаження..."}
+  </span>
         </p>
       </div>
     </div>

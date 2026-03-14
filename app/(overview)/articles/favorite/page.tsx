@@ -3,12 +3,20 @@
 import useSWR from 'swr';
 import { FavoriteArticle } from '@/app/ui/articles/favorite-article';
 import { FavoriteSkeleton } from '@/app/ui/articles/skeleton';
-import { Alert, Box, CircularProgress } from '@mui/material';
+import { Alert, Box } from '@mui/material';
 
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
+
+const fetcher = async (url: string) => {
+  const res = await fetch(url);
+  if (!res.ok) {
+    const errorData = await res.json();
+    throw new Error(errorData.error || 'Помилка завантаження');
+  }
+  return res.json();
+};
 
 export default function FavoriteArticlesPage() {
-  // Отримуємо список ТІЛЬКИ обраних статей через SWR
+  // Зверни увагу на шлях: він має бути таким же, як назва папки в api
   const { data: articles, error, isLoading } = useSWR('/api/articles/favorite', fetcher);
 
   return (
@@ -22,21 +30,33 @@ export default function FavoriteArticlesPage() {
         <div className="mt-2 h-1.5 w-20 rounded-full bg-[#facc15]" />
       </Box>
 
-      <Alert
-        severity="info"
-        variant="outlined"
-        sx={{
-          mb: 6,
-          borderRadius: '16px',
-          borderColor: '#1e40af',
-          color: '#1e40af',
-          backgroundColor: 'rgba(30, 64, 175, 0.03)',
-          '& .MuiAlert-icon': { color: '#facc15' }
-        }}
-      >
-        Тут зібрані ваші збережені статті ✨
-      </Alert>
+      {/* Повідомлення про помилку (наприклад, не авторизований) */}
+      {error && (
+        <Alert severity="error" sx={{ mb: 4, borderRadius: '16px' }}>
+          {error.message === 'Неавторизований доступ'
+            ? 'Будь ласка, увійдіть в акаунт, щоб бачити свої обрані статті 🔑'
+            : 'Не вдалося завантажити список статей 🛠️'}
+        </Alert>
+      )}
 
+      {!error && (
+        <Alert
+          severity="info"
+          variant="outlined"
+          sx={{
+            mb: 6,
+            borderRadius: '16px',
+            borderColor: '#1e40af',
+            color: '#1e40af',
+            backgroundColor: 'rgba(30, 64, 175, 0.03)',
+            '& .MuiAlert-icon': { color: '#facc15' }
+          }}
+        >
+          Тут зібрані ваші збережені статті ✨
+        </Alert>
+      )}
+
+      {/* Скелетони під час завантаження */}
       {isLoading && (
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
           {[1, 2, 3].map((n) => <FavoriteSkeleton key={n} />)}
@@ -44,13 +64,13 @@ export default function FavoriteArticlesPage() {
       )}
 
       {/* Якщо список порожній */}
-      {!isLoading && articles?.length === 0 && (
+      {!isLoading && !error && articles?.length === 0 && (
         <div className="text-center py-20 bg-slate-50 rounded-[30px] border-2 border-dashed border-slate-200">
           <p className="text-slate-400 italic text-lg">Ви ще не додали жодної статті в обране ⭐️</p>
         </div>
       )}
 
-      {/* Список обраних статей */}
+      {/* Список статей */}
       <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
         {articles?.map((article: any) => (
           <FavoriteArticle key={article.id} article={article} />
