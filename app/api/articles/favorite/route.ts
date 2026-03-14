@@ -13,7 +13,7 @@ export async function GET() {
       return NextResponse.json({ error: 'Неавторизований доступ' }, { status: 401 });
     }
 
-    const rawId = session.user.id || session.user.sub;
+    const rawId = session.user?.id;
 
     if (!rawId) {
       console.error("ID NOT FOUND IN SESSION");
