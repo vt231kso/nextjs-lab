@@ -11,19 +11,27 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
-//Таблиця для статтей
+model Favorite {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  articleId Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, articleId])
+}
+
 model Article {
   id          Int        @id @default(autoincrement())
   title       String     @db.Text
   body        String     @db.Text
-  isFavorite  Boolean    @default(false)
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
 
-//. Додаємо зв'язок з автором
 authorId    Int
-author      Profile    @relation(fields: [authorId], references: [id], onDelete: Cascade)
+author      User    @relation(fields: [authorId], references: [id], onDelete: Cascade)
   comments    Comment[]
+  favoritedBy Favorite[]
 }
 
 // Таблиця для коментарів (підв'язана до Article)
@@ -38,17 +46,48 @@ model Comment {
   articleId Int
   article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
 }
+model Account {
+  id                 String  @id @default(cuid())
+  userId             Int     // Твій тип Int з Лаби 2
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String? @db.Text
+  access_token       String? @db.Text
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String? @db.Text
+  session_state      String?
 
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
 // Таблиця для профілю користувача
-model Profile {
+model User {
   id        Int      @id @default(autoincrement())
   name      String?
   email     String   @unique
+  password  String?
+  emailVerified DateTime?
   bio       String?  @db.Text
-  image     String?  // URL аватара
-  // Налаштування (відповідає твоїм сторінкам /settings та /security)
+  age           Int?
+  image     String?
   settings  Json?    @default("{\"theme\": \"light\", \"notifications\": true}")
   security  Json?    @default("{\"twoFactorEnabled\": false}")
   createdAt DateTime @default(now())
   articles  Article[]
+  accounts      Account[]
+  sessions  Session[]
+  favorites Favorite[]
+
 }
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       Int
+  expires      DateTime
+  user         User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+

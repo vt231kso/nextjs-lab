@@ -2,6 +2,7 @@
 
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import "./globals.css";
+import { SessionProvider } from "next-auth/react";
 const theme = createTheme({
   palette: {
     primary: {
@@ -18,6 +19,7 @@ const theme = createTheme({
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
+    <SessionProvider>
     <html lang="en">
     <body>
     <ThemeProvider theme={theme}>
@@ -25,5 +27,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     </ThemeProvider>
     </body>
     </html>
+    </SessionProvider>
   );
 }
