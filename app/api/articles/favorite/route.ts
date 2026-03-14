@@ -1,6 +1,7 @@
 
 import {NextResponse} from "next/server";
 import {auth} from "@/auth";
+import { prisma } from "@/lib/prisma";
 
 export async function GET() {
   try {
@@ -28,7 +29,7 @@ export async function GET() {
 
     const favoriteEntries = await prisma.favorite.findMany({
       where: {
-        userId: userId, // Тепер ми впевнені, що тут число
+        userId: userId,
       },
       include: {
         article: {
