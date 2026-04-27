@@ -27,8 +27,9 @@ export const authConfig = {
       const isLoggedIn = !!auth?.user;
       const isApiAuthRoute = nextUrl.pathname.startsWith("/api/auth");
       const isOnLoginPage = nextUrl.pathname.startsWith("/login");
-
-      if (isApiAuthRoute) return true; // Завжди пускати на технічні запити
+      const isPublicRoute = nextUrl.pathname === "/"
+      if (isApiAuthRoute) return true;
+      if (isPublicRoute) return true;// Завжди пускати на технічні запити
 
       if (isOnLoginPage) {
         if (isLoggedIn) return Response.redirect(new URL("/", nextUrl));
